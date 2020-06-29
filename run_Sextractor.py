@@ -6,7 +6,7 @@ from subprocess import DEVNULL
 import shutil
 import shlex
 
-conf = json.load('config.json')
+conf = json.load(open('config.json'))
 root = conf['root']
 os.chdir(root)
 #date_list = glob.glob('20190507')
@@ -26,7 +26,10 @@ for i in date_list:
             shutil.copy('{}python/default.sex'.format(root), '.')
             shutil.copy('{}python/default.param'.format(root), '.')
             shutil.copy('{}python/default.conv'.format(root), '.')
-            os.remove('coadd.weight.fits')
+            try:
+                os.remove('coadd.weight.fits')
+            except FileNotFoundError:
+                pass
             fits_list = glob.glob('c4d*fakes.fits')
             #fits_list = glob.glob('2019*0507*.fits')
             for l in fits_list:

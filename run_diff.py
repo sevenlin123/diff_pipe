@@ -6,7 +6,7 @@ import subprocess
 from subprocess import DEVNULL
 import shutil
 
-conf = json.load('config.json')
+conf = json.load(open('config.json'))
 root = conf["root"]
 os.chdir(root)
 date_list = glob.glob('{}/{}/{}/'.format(conf['fakes'], conf['field'], conf['date']))

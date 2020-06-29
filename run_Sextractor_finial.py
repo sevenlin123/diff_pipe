@@ -4,7 +4,7 @@ import json
 import shlex
 import subprocess
 
-conf = json.load('config.json')
+conf = json.load(open('config.json'))
 root = conf['root']
 os.chdir(root)
 #date_list = glob.glob('20190402')
