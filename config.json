@@ -1,0 +1,7 @@
+{"root": "/data7/DEEP/",
+ "run": "2019050?",
+ "date": "20190504",
+ "field": "A0a",
+ "ccd": "CCD*",
+ "fakes": "with_fakes",
+ "ML_model": "best_model_20200401.h5"}

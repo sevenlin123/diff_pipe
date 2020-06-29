@@ -62,7 +62,7 @@ def main():
         test_list.remove(i)
         result = [None] * len(test_list)
         for n, j in enumerate(test_list):
-            hit = i.query_ball_tree(j, r=3/3600.)
+            hit = i.query_ball_tree(j, r=5/3600.)
             result[n] = np.array(hit).astype('bool')
         remove_list[m] = np.sum(np.array(result).astype(int), axis=0) < 3
     

@@ -3,6 +3,8 @@
 #
 # 1.0:
 #     - first version
+# 1.0.1:
+#     - load json config file
 #
 # Author: Edward Lin hsingwel@umich.edu
 ################################################################################
@@ -22,6 +24,7 @@ import subprocess
 from subprocess import DEVNULL
 import shlex
 import shutil
+import json
 
 def trim(file0, file1):
     '''
@@ -166,9 +169,10 @@ def check_img(img_list):
     return deep_check_result.flatten()
 
 def main():
-    global deep_check, pool
+    global deep_check
     pool = multiprocessing.Pool(processes=2)
-    deep_check = tf.keras.models.load_model('../../best_model_20200401.h5')
+    conf = json.load('config.json')
+    deep_check = tf.keras.models.load_model(conf["ML_model"])
     img_list = open('img.list').readlines()
     img_list = [i.strip() for i in img_list]
     list(pool.map(gen_diff, img_list))
