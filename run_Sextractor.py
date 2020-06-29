@@ -39,7 +39,7 @@ for i in date_list:
                     zp = 0
                 subimg = l.replace('fits', 'sub.fits')
                 if os.path.isfile(cat) == False: 
-                    command = 'sex -CATALOG_NAME {} -MAG_ZEROPOINT {} -CHECKIMAGE_TYPE NONE {}'.format(cat, zp, l))
+                    command = 'sex -CATALOG_NAME {} -MAG_ZEROPOINT {} -CHECKIMAGE_TYPE NONE {}'.format(cat, zp, l)
                     p0 = subprocess.call(shlex.split(command))
 
 
