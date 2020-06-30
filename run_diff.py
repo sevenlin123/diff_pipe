@@ -22,9 +22,13 @@ for i in date_list:
             os.chdir(root+i+'/'+j+'/'+k)
             shutil.copy('{}/{}/{}/{}/coadd.fits'.format(root, conf['date'], conf['field'], k), '.')
             shutil.copy('{}/{}/{}/{}/coadd.cat'.format(root, conf['date'], conf['field'], k), '.')
-            p0 = subprocess.call('ls c4d*CCD*fakes.fits', stdout='img.list', stderr=DEVNULL)
+            img_list = glob.glob('c4d*CCD*fakes.fits')
+            with open('img.list', 'w') as output:
+               for l in img_list:
+                  output.write('{}\n'.format(l))
+
             shutil.copy('{}/python/diff_img.py'.format(root), '.')
-            for k in glob.glob('*.trim*'):
-                os.remove(k)
+            for l in glob.glob('*.trim*'):
+                os.remove(l)
             
-            p0 = subprocess.call('python diff_img.py')
+            p0 = subprocess.call(['python', '-W', 'ignore', 'diff_img.py'])
