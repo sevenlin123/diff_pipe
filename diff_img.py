@@ -126,10 +126,6 @@ def gen_diff(input_image):
     inim, tmpim = trim(input_image, tmp)
     run_num = [0, rad_in, rad_tmp, zp, zp_tmp, bg0, bg1, tr0, tr1, inim, tmpim]
     dimg = [diff_img(run_num)]
-    trim_files = glob.glob('*trim*fits')
-    for i in trim_files:
-        os.remove(i)
-
     return dimg
 
 def zp_cut(img_list):
@@ -176,13 +172,16 @@ def main():
     img_list = open('img.list').readlines()
     img_list = [i.strip() for i in img_list]
     list(pool.map(gen_diff, img_list))
+    trim_files = glob.glob('*trim*fits')
+    for i in trim_files:
+        os.remove(i)
     diff_img_list = glob.glob('*.diff.fits')
     check_result = check_img(diff_img_list)
     diff_img_list = np.array(diff_img_list)
     check_result = np.array(check_result)
     for n, j in enumerate(diff_img_list):
         print('{}: {}'.format(j, check_result[n]))
-        if check_result[n] > -10:
+        if check_result[n] > -7:
             fits.setval(j, 'ml_score', value=check_result[n])
         else:
             os.remove(j)
