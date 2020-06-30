@@ -4,7 +4,7 @@ import json
 import shlex
 import subprocess
 
-conf = json.load('config.json')
+conf = json.load(open('config.json'))
 root = conf['root']
 os.chdir(root)
 #date_list = glob.glob('20190402')
@@ -30,5 +30,5 @@ for i in date_list:
                 zp = fits.getheader('{}s.diff.fits'.format(l), 0)['MAGZERO']
                 cat = '{}s.diff.cat'.format(l)
                 subimg = '{}s.diff.sub.fits'.format(l)
-                command = 'sex -DETECT_THRESH 5.0 -CATALOG_NAME {} -CHECKIMAGE_TYPE OBJECTS -CHECKIMAGE_NAME {} -MAG_ZEROPOINT {} {}s.diff.fits'.format(cat, subimg, zp, l))
+                command = 'sex -DETECT_THRESH 5.0 -CATALOG_NAME {} -CHECKIMAGE_TYPE OBJECTS -CHECKIMAGE_NAME {} -MAG_ZEROPOINT {} {}s.diff.fits'.format(cat, subimg, zp, l)
                 p0 = subprocess.call(shlex.split(command))
