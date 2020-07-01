@@ -2,9 +2,11 @@ import numpy as np
 from astropy.io import fits
 from astropy.wcs import WCS
 import glob
+import json
 
 def read_gaia():
-    gaia = fits.open('/data7/DEEP/GaiaData/Gaia_04_A0b.fits.fz')[1].data
+    conf = json.load(open('/data7/DEEP/python/config.json'))
+    gaia = fits.open(conf['gaia'])[1].data
     #gaia = fits.open('Gaia_04_A0b.fits.fz')[1].data
     return gaia['ra'], gaia['dec'], gaia['phot_g_mean_mag']
 
@@ -14,7 +16,7 @@ def cal_flux_radius(img0):
     FR0 = FR0[np.logical_and(FR0>1.7, FR0<10)]
     hist0 = np.histogram(FR0, bins=100)
     rad = (hist0[1][hist0[0].argmax()]+hist0[1][hist0[0].argmax()+1])/2.
-    return max(rad, rad_coadd)
+    return rad
 
 def read_coadd():
     coadd_cat = fits.open('coadd.cat')[1]
@@ -34,7 +36,7 @@ def cal_rad(mag):
     delta_mag = mag0 - mag
     delta_mag[delta_mag < 0 ] = 0
     r = lambda delta_mag:(-np.log(1/(2.512**delta_mag))+1)**0.5
-    rad = r(delta_mag)*(1+0.4*delta_mag)+3
+    rad = r(delta_mag)*(1+0.4*delta_mag)+2
     rad[mag == 22.0] = 2
     return rad
 
@@ -54,9 +56,13 @@ def mask(img_file):
         imgmask = np.zeros(img[0].data.shape, dtype=bool)
         for i in range(-rad.max(), rad.max()):
             for j in range(-rad.max(),rad.max()):
-                x_apply = x_eff[(rad**2 >= i**2+j**2)]
-                y_apply = y_eff[(rad**2 >= i**2+j**2)]
-                imgmask[y_apply+j, x_apply+i] = 1
+                x_apply = x_eff[(rad**2 >= i**2+j**2)] + i
+                y_apply = y_eff[(rad**2 >= i**2+j**2)] + j
+                x_apply[x_apply > 4199] = 4199
+                x_apply[x_apply < 0] = 0
+                y_apply[y_apply > 2099] = 2099
+                y_apply[y_apply < 0] = 0
+                imgmask[y_apply, x_apply] = 1
         
         img[0].data[imgmask] = 0
         img[0].data[cr_mask] = 0
