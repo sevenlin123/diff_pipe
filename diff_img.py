@@ -190,7 +190,9 @@ def main():
             fits.setval(j, 'ml_score', value=check_result[n])
         else:
             gen_diff(j.replace('.diff.fits', '.fits'), num = 1)
-            if check_img([j])[0] > -5:
+            ml_score = check_img([j])[0]
+            print('{}: {}'.format(j, ml_score))
+            if ml_score > -5:
                 fits.setval(j, 'ml_score', value=check_result[n])
             else:
                 os.remove(j)
