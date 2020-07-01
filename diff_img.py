@@ -1,10 +1,12 @@
 ################################################################################
-# doff_img.py, version 1.0.1
+# diff_img.py, version 1.0.1
 #
 # 1.0:
 #     - first version
 # 1.0.1:
 #     - load json config file
+# 1.1:
+#     - impove differencing image result
 #
 # Author: Edward Lin hsingwel@umich.edu
 ################################################################################
@@ -15,7 +17,6 @@ from astropy.wcs import WCS
 import tensorflow as tf
 from scipy.ndimage import zoom
 import sys, os, glob
-from multiprocessing import Pool
 from scipy import ndimage
 from scipy.stats import mode
 import numpy as np
@@ -87,7 +88,11 @@ def diff_img(run_num_list):
     tu = fluxC*rad0**2
     tu_temp = tu / temp_fac
     sigma_match = ((rad0*factor/((2*np.log(2))**0.5))**2 - (rad1/((2*np.log(2))**0.5)))**0.5
-    command = 'hotpants -inim {0} -tmplim {1} -outim {2} -tl -1000 -tu {3} -il -1000 -iu {4} -c t -ng 3 6 {6} -r {8} -nsx 10 -nsy 10 -nrx 1 -nry 1 -ko 2 -bgo 1 -sconv'.format(img0, img1, img_out, tu_temp, tu, sigma_match*0.5, sigma_match, sigma_match*2, 3*rad0)
+    if run_num == 0:
+        command = 'hotpants -inim {0} -tmplim {1} -outim {2} -tl -1000 -tu {3} -il -1000 -iu {4} -c t -ng 3 6 {6} -r {8} -nsx 10 -nsy 10 -nrx 3 -nry 1 -ko 2 -bgo 1 -sconv'.format(img0, img1, img_out, tu_temp, tu, sigma_match*0.5, sigma_match, sigma_match*2, 3*rad0)
+    else:
+        command = 'hotpants -inim {0} -tmplim {1} -outim {2} -tl -1000 -tu {3} -il -1000 -iu {4} -c t -ng 3 6 {6} -r {8} -nsx 10 -nsy 10 -nrx 1 -nry 1 -ko 2 -bgo 1 -sconv'.format(img0, img1, img_out, tu_temp, tu, sigma_match*0.5, sigma_match, sigma_match*2, 3*rad0)
+    
     p0 = subprocess.call(shlex.split(command), stdout=DEVNULL, stderr=DEVNULL)
     return img_out
 
@@ -116,7 +121,7 @@ def cal_flux_radius(img0, img1):
            (hist1[1][hist1[0].argmax()]+hist1[1][hist1[0].argmax()+1])/2, \
            zp, zp_tmp, BG0, BG1, Tr0, Tr1
 
-def gen_diff(input_image):
+def gen_diff(input_image, num = 0):
     print(input_image)
     field = input_image.split('_')[1]
     ccd = input_image.split('_')[3]
@@ -124,7 +129,7 @@ def gen_diff(input_image):
     tmp = 'coadd.fits'
     rad_in, rad_tmp, zp, zp_tmp, bg0, bg1, tr0, tr1 = cal_flux_radius(input_image, tmp)
     inim, tmpim = trim(input_image, tmp)
-    run_num = [0, rad_in, rad_tmp, zp, zp_tmp, bg0, bg1, tr0, tr1, inim, tmpim]
+    run_num = [num, rad_in, rad_tmp, zp, zp_tmp, bg0, bg1, tr0, tr1, inim, tmpim]
     dimg = [diff_img(run_num)]
     return dimg
 
@@ -181,10 +186,19 @@ def main():
     check_result = np.array(check_result)
     for n, j in enumerate(diff_img_list):
         print('{}: {}'.format(j, check_result[n]))
-        if check_result[n] > -7:
+        if check_result[n] >= 0:
             fits.setval(j, 'ml_score', value=check_result[n])
         else:
-            os.remove(j)
+            gen_diff(j.replace('.diff.fits', '.fits'), num = 1)
+            if check_img([j])[0] > -5:
+                fits.setval(j, 'ml_score', value=check_result[n])
+            else:
+                os.remove(j)
+    
+    trim_files = glob.glob('*trim*fits')
+    for i in trim_files:
+        os.remove(i)
+    
            
 if __name__ == '__main__':
     main()
