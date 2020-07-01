@@ -1,6 +1,6 @@
 import os, glob
 from astropy.io import fits
-from subprocess import DEVNULL
+import subprocess
 import shutil
 import shlex
 import json
@@ -21,5 +21,5 @@ for i in date_list:
             print(root+i+'/'+j+'/'+k)
             shutil.copy('{}/python/cosmic_ray_mask.py'.format(root), '.')
             shutil.copy('{}/python/mask_artifact.py'.format(root), '.')
-            p0 = subprocess.call('python cosmic_ray_mask.py')
-            p1 = subprocess.call('python -W ignore mask_artifact.py')
+            p0 = subprocess.call(['python', 'cosmic_ray_mask.py'])
+            p1 = subprocess.call(['python', '-W', 'ignore', 'mask_artifact.py'])
