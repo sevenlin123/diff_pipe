@@ -9,7 +9,7 @@ root = conf['root']
 os.chdir(root)
 #date_list = glob.glob('20190402')
 #date_list = glob.glob('With_Fakes/A0b/20190402/')
-ate_list = glob.glob('{}/{}/{}/'.format(conf['fakes'], conf['field'], conf['date']))
+date_list = glob.glob('{}/{}/{}/'.format(conf['fakes'], conf['field'], conf['date']))
 date_list = filter(lambda x: not x.endswith('gz'), date_list)
 for i in date_list:
     os.chdir(root+i)
